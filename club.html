@@ -5,19 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Open Mic — The Club</title>
 
+  <!-- iOS / Mobile “top bar” friendliness -->
+  <meta name="theme-color" content="#0b0b0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <style>
+    /* Ensure background truly covers the entire viewport on iOS */
+    html, body {
+      height: 100%;
+      background: #0b0b0b;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100svh; /* iOS “small viewport height” fix */
       background: radial-gradient(circle at top, #2a0012, #0b0b0b);
       color: #f5f5f5;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
+
+      /* Safe area support (notched phones) */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* Subtle top vignette so iOS status-bar area blends (no harsh “bar” look) */
+    body::before{
+      content:"";
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 140px;
+      pointer-events: none;
+      z-index: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0));
     }
 
     .container {
+      position: relative;
+      z-index: 1; /* above vignette */
       max-width: 800px;
       width: 100%;
       padding: 40px;
@@ -26,6 +58,7 @@
       flex-direction: column;
       align-items: center;
       gap: 18px;
+      box-sizing: border-box;
     }
 
     .back-link {
@@ -236,7 +269,6 @@
     const lockText = document.getElementById("lockText");
 
     // ====== VOTES (3 PER SESSION / PAGE LOAD) ======
-    // Persist across "Next act", reset only when page refreshes.
     let votes = 0;
     maxNum.textContent = MAX_VOTES;
 
