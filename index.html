@@ -2,252 +2,353 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Open Mic</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Mic</title>
 
-	<style>
-		body {
-			margin: 0;
-			min-height: 100vh;
-			background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
-			color: #f5f5f5;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-		.container {
-			text-align: center;
-			max-width: 720px;
-			width: 100%;
-			padding: 40px;
-		}
+    .container {
+      text-align: center;
+      max-width: 720px;
+      width: 100%;
+      padding: 40px;
+    }
 
-		h1 {
-			font-size: 3rem;
-			margin: 0 0 10px 0;
-			letter-spacing: 0.2px;
-		}
+    h1 {
+      font-size: 3rem;
+      margin: 0 0 10px 0;
+      letter-spacing: 0.2px;
+    }
 
-		p {
-			opacity: 0.75;
-			margin: 0 0 26px 0;
-		}
+    p {
+      opacity: 0.75;
+      margin: 0 0 26px 0;
+    }
 
-		.rooms {
-			display: flex;
-			gap: 16px;
-			justify-content: center;
-			flex-wrap: wrap;
-		}
+    .rooms {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
 
-		.room-link {
-			text-decoration: none;
-		}
+    .room-link {
+      text-decoration: none;
+    }
 
-		.room-button {
-			background: rgba(255, 255, 255, 0.04);
-			border: 1px solid rgba(255, 255, 255, 0.10);
-			color: #f5f5f5;
-			padding: 16px 26px;
-			font-size: 1rem;
-			cursor: pointer;
-			transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-			border-radius: 10px;
-			min-width: 180px;
-			position: relative;
-			overflow: hidden;
-			text-align: left;
-		}
+    .room-button {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #f5f5f5;
+      padding: 16px 26px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      border-radius: 10px;
+      min-width: 180px;
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
 
-		.room-button::before {
-			content: "";
-			position: absolute;
-			inset: 0;
-			background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 55%);
-			opacity: 0;
-			transition: opacity 0.18s ease;
-			pointer-events: none;
-		}
+    .room-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
 
-		.room-button:hover::before {
-			opacity: 1;
-		}
+    .room-button:hover::before {
+      opacity: 1;
+    }
 
-		.room-button:hover {
-			transform: translateY(-2px);
-		}
+    .room-button:hover {
+      transform: translateY(-2px);
+    }
 
-		.room-title {
-			display: block;
-			font-weight: 600;
-			letter-spacing: 0.2px;
-		}
+    .room-title {
+      display: block;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
 
-		.room-sub {
-			display: block;
-			margin-top: 6px;
-			font-size: 0.82rem;
-			opacity: 0.65;
-			font-weight: 400;
-		}
+    .room-sub {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.82rem;
+      opacity: 0.65;
+      font-weight: 400;
+    }
 
-		/* Room-specific glow */
-		.room-button.pub:hover {
-			background: rgba(245, 193, 108, 0.10);
-			border-color: rgba(245, 193, 108, 0.35);
-			box-shadow: 0 14px 40px rgba(245, 193, 108, 0.15);
-		}
+    /* Room-specific glow */
+    .room-button.pub:hover {
+      background: rgba(245, 193, 108, 0.10);
+      border-color: rgba(245, 193, 108, 0.35);
+      box-shadow: 0 14px 40px rgba(245, 193, 108, 0.15);
+    }
 
-		.room-button.club:hover {
-			background: rgba(255, 42, 109, 0.10);
-			border-color: rgba(255, 42, 109, 0.35);
-			box-shadow: 0 14px 40px rgba(255, 42, 109, 0.18);
-		}
+    .room-button.club:hover {
+      background: rgba(255, 42, 109, 0.10);
+      border-color: rgba(255, 42, 109, 0.35);
+      box-shadow: 0 14px 40px rgba(255, 42, 109, 0.18);
+    }
 
-		.room-button.basement:hover {
-			background: rgba(42, 157, 143, 0.10);
-			border-color: rgba(42, 157, 143, 0.35);
-			box-shadow: 0 14px 40px rgba(42, 157, 143, 0.18);
-		}
+    .room-button.basement:hover {
+      background: rgba(42, 157, 143, 0.10);
+      border-color: rgba(42, 157, 143, 0.35);
+      box-shadow: 0 14px 40px rgba(42, 157, 143, 0.18);
+    }
 
-		/* Tiny hint */
-		.audio-hint {
-			margin-top: 18px;
-			opacity: 0.55;
-			font-size: 0.9rem;
-		}
-	</style>
+    /* Tiny hint */
+    .audio-hint {
+      margin-top: 18px;
+      opacity: 0.55;
+      font-size: 0.9rem;
+    }
+
+    /* ===== Mobile "armed / listening" pulse ===== */
+    .room-button.listening {
+      animation: pulse 1.15s ease-in-out infinite;
+    }
+
+    /* Optional: make armed state also glow by room (feels sick) */
+    .room-button.pub.listening {
+      border-color: rgba(245, 193, 108, 0.55);
+      box-shadow: 0 14px 40px rgba(245, 193, 108, 0.22);
+      background: rgba(245, 193, 108, 0.12);
+    }
+
+    .room-button.club.listening {
+      border-color: rgba(255, 42, 109, 0.55);
+      box-shadow: 0 14px 40px rgba(255, 42, 109, 0.24);
+      background: rgba(255, 42, 109, 0.12);
+    }
+
+    .room-button.basement.listening {
+      border-color: rgba(42, 157, 143, 0.55);
+      box-shadow: 0 14px 40px rgba(42, 157, 143, 0.24);
+      background: rgba(42, 157, 143, 0.12);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.10);
+      }
+
+      55% {
+        transform: translateY(-2px);
+        box-shadow: 0 0 0 12px rgba(255, 255, 255, 0.00);
+      }
+
+      100% {
+        transform: translateY(0);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.00);
+      }
+    }
+  </style>
 </head>
 
 <body>
-	<div class="container">
-		<h1>Open Mic</h1>
-		<h1>Powered by The Merit Engine™</h1>
-		<p>Discover your next favourite artist...</p>
+  <div class="container">
+    <h1>Open Mic</h1>
+    <h1>Powered by The Merit Engine™</h1>
+    <p>Discover your next favourite artist...</p>
 
-		<div class="rooms">
-			<a class="room-link" href="pub.html">
-				<button class="room-button pub" data-room="pub">
-					<span class="room-title">The Pub</span>
-					<span class="room-sub">indie / alt / folk</span>
-				</button>
-			</a>
+    <div class="rooms">
+      <a class="room-link" href="pub.html" data-room="pub">
+        <button class="room-button pub" data-room="pub" type="button">
+          <span class="room-title">The Pub</span>
+          <span class="room-sub">indie / alt / folk</span>
+        </button>
+      </a>
 
-			<a class="room-link" href="club.html">
-				<button class="room-button club" data-room="club">
-					<span class="room-title">The Club</span>
-					<span class="room-sub">rap / trap / drill</span>
-				</button>
-			</a>
+      <a class="room-link" href="club.html" data-room="club">
+        <button class="room-button club" data-room="club" type="button">
+          <span class="room-title">The Club</span>
+          <span class="room-sub">rap / trap / drill</span>
+        </button>
+      </a>
 
-			<a class="room-link" href="basement.html">
-				<button class="room-button basement" data-room="basement">
-					<span class="room-title">The Basement</span>
-					<span class="room-sub">dnb / jungle / experimental</span>
-				</button>
-			</a>
-		</div>
+      <a class="room-link" href="basement.html" data-room="basement">
+        <button class="room-button basement" data-room="basement" type="button">
+          <span class="room-title">The Basement</span>
+          <span class="room-sub">dnb / jungle / experimental</span>
+        </button>
+      </a>
+    </div>
 
-		<div class="audio-hint">
-			Click anywhere on the screen then hover over a room to hear who's playing tonight.
-		</div>
-	</div>
+    <div class="audio-hint" id="audioHint">
+      Click anywhere on the screen then hover over a room to hear who's playing tonight.
+    </div>
+  </div>
 
-	<script>
-		// ---------- OUTSIDE-THE-DOOR PREVIEW SYSTEM ----------
-		// Put these files in: /audio/pub.mp3 /audio/club.mp3 /audio/basement.mp3
-		const PREVIEW_FILES = {
-			pub: "audio/pub.mp3",
-			club: "audio/club.mp3",
-			basement: "audio/basement.mp3"
-		};
+  <script>
+    // ---------- OUTSIDE-THE-DOOR PREVIEW SYSTEM ----------
+    // Put these files in: /audio/pub.mp3 /audio/club.mp3 /audio/basement.mp3
+    const PREVIEW_FILES = {
+      pub: "audio/pub.mp3",
+      club: "audio/club.mp3",
+      basement: "audio/basement.mp3"
+    };
 
-		const PREVIEW_SECONDS = 10;
+    const PREVIEW_SECONDS = 10;
 
-		// Web Audio setup for muffled effect
-		const AudioContext = window.AudioContext || window.webkitAudioContext;
-		const ctx = new AudioContext();
+    // Detect touch / mobile-ish input
+    const isTouch =
+      ("ontouchstart" in window) ||
+      (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
 
-		const audioEl = new Audio();
-		audioEl.preload = "auto";
-		audioEl.crossOrigin = "anonymous";
+    // Update hint copy depending on device
+    const audioHint = document.getElementById("audioHint");
+    if (isTouch) {
+      audioHint.textContent = "Tap a room to listen. Tap again to enter.";
+    } else {
+      audioHint.textContent = "Click anywhere, then hover over a room to hear who's playing tonight.";
+    }
 
-		const source = ctx.createMediaElementSource(audioEl);
+    // Web Audio setup for muffled effect
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext();
 
-		// Low-pass filter to simulate "outside the room"
-		const lowpass = ctx.createBiquadFilter();
-		lowpass.type = "lowpass";
-		lowpass.frequency.value = 10000; // lower = more muffled
-		lowpass.Q.value = 0.8;
+    const audioEl = new Audio();
+    audioEl.preload = "auto";
+    audioEl.crossOrigin = "anonymous";
 
-		// Tiny gain to keep it subtle (like distance)
-		const gain = ctx.createGain();
-		gain.gain.value = 0.55;
+    const source = ctx.createMediaElementSource(audioEl);
 
-		source.connect(lowpass);
-		lowpass.connect(gain);
-		gain.connect(ctx.destination);
+    // Low-pass filter to simulate "outside the room"
+    const lowpass = ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 10000; // lower = more muffled
+    lowpass.Q.value = 0.8;
 
-		let stopTimer = null;
-		let currentRoom = null;
+    // Tiny gain to keep it subtle (like distance)
+    const gain = ctx.createGain();
+    gain.gain.value = 0.55;
 
-		function stopPreview() {
-			if (stopTimer) clearTimeout(stopTimer);
-			stopTimer = null;
-			currentRoom = null;
-			audioEl.pause();
-			audioEl.currentTime = 0;
-		}
+    source.connect(lowpass);
+    lowpass.connect(gain);
+    gain.connect(ctx.destination);
 
-		async function playPreview(room) {
-			// Avoid restarting the same one repeatedly
-			if (currentRoom === room && !audioEl.paused) return;
+    let stopTimer = null;
+    let currentRoom = null;
 
-			// iOS/Safari often needs a user gesture to start audio context
-			if (ctx.state === "suspended") {
-				try { await ctx.resume(); } catch (e) { }
-			}
+    function stopPreview() {
+      if (stopTimer) clearTimeout(stopTimer);
+      stopTimer = null;
+      currentRoom = null;
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    }
 
-			currentRoom = room;
-			audioEl.src = PREVIEW_FILES[room];
-			audioEl.currentTime = 0;
+    async function ensureAudioReady() {
+      // iOS/Safari often needs a user gesture to start audio context
+      if (ctx.state === "suspended") {
+        try { await ctx.resume(); } catch (e) { }
+      }
+    }
 
-			try {
-				await audioEl.play();
-			} catch (e) {
-				// Autoplay blocked — user needs a tap first. That's normal on mobile.
-				return;
-			}
+    async function playPreview(room) {
+      if (!PREVIEW_FILES[room]) return;
 
-			if (stopTimer) clearTimeout(stopTimer);
-			stopTimer = setTimeout(stopPreview, PREVIEW_SECONDS * 1000);
-		}
+      // Avoid restarting the same one repeatedly
+      if (currentRoom === room && !audioEl.paused) return;
 
-		// Desktop hover behavior
-		document.querySelectorAll(".room-button").forEach(btn => {
-			const room = btn.dataset.room;
+      await ensureAudioReady();
 
-			btn.addEventListener("mouseenter", () => playPreview(room));
-			btn.addEventListener("mouseleave", stopPreview);
+      currentRoom = room;
+      audioEl.src = PREVIEW_FILES[room];
+      audioEl.currentTime = 0;
 
-			// Mobile fallback: tap plays preview (second tap can click link)
-			btn.addEventListener("touchstart", (e) => {
-				// first touch triggers preview without navigating immediately
-				if (ctx.state === "suspended" || audioEl.paused) {
-					e.preventDefault();
-					playPreview(room);
-				}
-			}, { passive: false });
-		});
+      try {
+        await audioEl.play();
+      } catch (e) {
+        // Autoplay blocked — user needs a tap first. That's normal.
+        return;
+      }
 
-		// Safety: stop audio when switching tabs
-		document.addEventListener("visibilitychange", () => {
-			if (document.hidden) stopPreview();
-		});
-	</script>
+      if (stopTimer) clearTimeout(stopTimer);
+      stopTimer = setTimeout(stopPreview, PREVIEW_SECONDS * 1000);
+    }
+
+    // Utility: clear "listening" pulses
+    function clearListeningStates() {
+      document.querySelectorAll(".room-button.listening").forEach(btn => {
+        btn.classList.remove("listening");
+      });
+    }
+
+    // ===== Desktop hover behaviour =====
+    if (!isTouch) {
+      document.querySelectorAll(".room-button").forEach(btn => {
+        const room = btn.dataset.room;
+
+        btn.addEventListener("mouseenter", () => playPreview(room));
+        btn.addEventListener("mouseleave", stopPreview);
+      });
+    }
+
+    // ===== Mobile tap-once/tap-twice behaviour =====
+    if (isTouch) {
+      let armedRoom = null;
+
+      document.querySelectorAll(".room-link").forEach(link => {
+        const room = link.dataset.room;
+        const btn = link.querySelector(".room-button");
+
+        link.addEventListener("click", async (e) => {
+          // First tap on a room => prevent navigation, play preview, pulse button
+          if (armedRoom !== room) {
+            e.preventDefault();
+            armedRoom = room;
+
+            clearListeningStates();
+            btn.classList.add("listening");
+
+            await playPreview(room);
+            return;
+          }
+
+          // Second tap on same room => allow navigation
+          stopPreview();
+          clearListeningStates();
+          armedRoom = null;
+          // no preventDefault here
+        });
+      });
+
+      // Tap outside cancels
+      document.addEventListener("click", (e) => {
+        const clickedRoom = e.target.closest(".room-link");
+        if (!clickedRoom && armedRoom !== null) {
+          armedRoom = null;
+          clearListeningStates();
+          stopPreview();
+        }
+      });
+    }
+
+    // Safety: stop audio when switching tabs
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopPreview();
+    });
+  </script>
 </body>
 
 </html>
