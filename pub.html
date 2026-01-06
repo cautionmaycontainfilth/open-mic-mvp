@@ -180,6 +180,116 @@
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ---------- End-of-night Modal ---------- */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 9999;
+    }
+
+    .modal.show { display: block; }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(520px, calc(100% - 40px));
+      background: rgba(18,18,18,0.92);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 18px;
+      color: #f5f5f5;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+      text-align: left;
+    }
+
+    .modal-card h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.25rem;
+    }
+
+    .modal-sub {
+      margin: 0 0 14px 0;
+      opacity: 0.75;
+      font-size: 0.95rem;
+    }
+
+    .artist-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+      max-height: 50vh;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .artist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .artist-name { font-weight: 600; }
+    .artist-track {
+      font-size: 0.85rem;
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+
+    .artist-link {
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #f5f5f5;
+      white-space: nowrap;
+    }
+
+    .artist-link:hover {
+      background: rgba(255,255,255,0.10);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-close {
+      background: rgba(255,255,255,0.06);
+      color: #f5f5f5;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .modal-primary {
+      background: #f5c16c;
+      color: #000;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -223,17 +333,54 @@
     </div>
   </div>
 
+  <!-- Discovery Modal -->
+  <div class="modal" id="discoveryModal" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">Did you find a new favourite?</h2>
+      <p class="modal-sub">Here’s where to find tonight’s acts on Spotify.</p>
+
+      <div class="artist-list" id="artistList"></div>
+
+      <div class="modal-actions">
+        <button class="modal-close" id="closeModalBtn">Close</button>
+        <button class="modal-primary" id="restartBtn">Run it back</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ====== CONFIG ======
     const LOCK_SECONDS = 20;
     const MAX_PINTS = 3;
 
-    // Demo tracks
+    // Demo tracks (+ artistUrl for the end-of-night list)
     const tracks = [
-      { title: "Mr. Brightside", artist: "The Killers", id: "003vvx7Niy0yvhvHt4a68B" },
-      { title: "Riptide", artist: "Vance Joy", id: "7yq4Qj7cqayVTp3FF9CWbm" },
-      { title: "Every Morning", artist: "Sugar Ray", id: "2ouURa1AIXp3AvkS52Jry5" },
-      { title: "Ho Hey", artist: "The Lumineers", id: "0W4Kpfp1w2xkY3PrV714B7" }
+      {
+        title: "Mr. Brightside",
+        artist: "The Killers",
+        id: "003vvx7Niy0yvhvHt4a68B",
+        artistUrl: "https://open.spotify.com/artist/0C0XlULifJtAgn6ZNCW2eu"
+      },
+      {
+        title: "Riptide",
+        artist: "Vance Joy",
+        id: "7yq4Qj7cqayVTp3FF9CWbm",
+        artistUrl: "https://open.spotify.com/artist/10exVja0key0uqUkk6LJRT"
+      },
+      {
+        title: "Every Morning",
+        artist: "Sugar Ray",
+        id: "2ouURa1AIXp3AvkS52Jry5",
+        artistUrl: "https://open.spotify.com/artist/4uN3DsfENc7dp0OLO0FEIb"
+      },
+      {
+        title: "Ho Hey",
+        artist: "The Lumineers",
+        id: "0W4Kpfp1w2xkY3PrV714B7",
+        artistUrl: "https://open.spotify.com/artist/16oZKvXb6WkQlVAjwo2Wbg"
+      }
     ];
 
     let currentIndex = 0;
@@ -248,7 +395,6 @@
     const lockText = document.getElementById("lockText");
 
     // ====== PINTS (3 PER SESSION / PAGE LOAD) ======
-    // Persist across "Next act" clicks, reset only when page refreshes.
     let pints = 0;
     pintsMaxEl.textContent = MAX_PINTS;
 
@@ -261,7 +407,6 @@
     }
 
     function showOutOfPintsState() {
-      // Stop any running timers and hard-disable the button
       if (lockTimer) clearInterval(lockTimer);
       lockTimer = null;
 
@@ -283,7 +428,7 @@
 
       // Re-trigger fade animation
       trackCard.style.animation = "none";
-      void trackCard.offsetWidth; // force reflow
+      void trackCard.offsetWidth;
       trackCard.style.animation = "fadeIn 0.6s ease forwards";
 
       // Re-lock pint button for the new act (unless you're out of pints)
@@ -301,7 +446,6 @@
     function startLock() {
       if (lockTimer) clearInterval(lockTimer);
 
-      // if somehow out of pints, don't lock — just show message
       if (outOfPints()) {
         showOutOfPintsState();
         return;
@@ -323,10 +467,9 @@
           clearInterval(lockTimer);
           lockTimer = null;
 
-          // Only unlock if you still have pints left
           if (!outOfPints()) {
             pintBtn.disabled = false;
-            lockText.classList.add("hidden"); // disappear after countdown
+            lockText.classList.add("hidden");
           } else {
             showOutOfPintsState();
           }
@@ -334,23 +477,76 @@
       }, 1000);
     }
 
+    // ====== END-OF-NIGHT MODAL ======
+    const modal = document.getElementById("discoveryModal");
+    const artistList = document.getElementById("artistList");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function buildArtistList() {
+      // unique by artistUrl (in case you later have multiple tracks per artist)
+      const seen = new Set();
+      const unique = [];
+
+      for (const t of tracks) {
+        if (!t.artistUrl) continue;
+        if (seen.has(t.artistUrl)) continue;
+        seen.add(t.artistUrl);
+        unique.push(t);
+      }
+
+      artistList.innerHTML = unique.map(t => `
+        <div class="artist-item">
+          <div>
+            <div class="artist-name">${t.artist}</div>
+            <div class="artist-track">${t.title}</div>
+          </div>
+          <a class="artist-link" href="${t.artistUrl}" target="_blank" rel="noopener noreferrer">
+            Open in Spotify →
+          </a>
+        </div>
+      `).join("");
+    }
+
+    function openModal() {
+      buildArtistList();
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    closeModalBtn.addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", closeModal);
+
+    restartBtn.addEventListener("click", () => {
+      closeModal();
+      setTrack(0);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.classList.contains("show")) closeModal();
+    });
+
     // ====== INIT ======
     renderPints();
     renderTrackMeta();
+    startLock();
 
-    // Start locked unless already out of pints (won't happen at init, but tidy)
-    if (outOfPints()) {
-      showOutOfPintsState();
-    } else {
-      startLock();
-    }
-
-    // Next act cycles tracks
+    // Next act: if last act, show modal instead of looping
     nextBtn.addEventListener("click", () => {
-      setTrack(currentIndex + 1);
+      if (currentIndex === tracks.length - 1) {
+        openModal();
+      } else {
+        setTrack(currentIndex + 1);
+      }
     });
 
-    // Pint click increments, clinks, and enforces max
+    // Pint click increments, clinks, enforces max
     pintBtn.addEventListener("click", () => {
       if (outOfPints()) {
         showOutOfPintsState();
@@ -364,7 +560,6 @@
       void pintBtn.offsetWidth;
       pintBtn.classList.add("clinked");
 
-      // If that was the final pint, disable + show message immediately
       if (outOfPints()) {
         showOutOfPintsState();
       }
