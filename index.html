@@ -7,37 +7,55 @@
   <title>Open Mic</title>
 
   <style>
-    /* ===== Mobile border fix ===== */
+    /* ===== iOS SAFARI "WHITE BORDER" FIXES ===== */
     html,
     body {
-      margin: 0;
       width: 100%;
-      min-height: 100dvh;
-      overflow-x: hidden;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+
+      /* Put the background on BOTH html and body so iOS can't show white behind it */
       background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
+      background-color: #0b0b0b;
+    }
+
+    /* Prevent tiny overflow from creating side slivers */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
     }
 
     body {
+      /* iOS-friendly viewport sizing (address bar / safe-area weirdness) */
+      min-height: 100vh;
+      min-height: 100svh;
+      min-height: 100dvh;
+
       color: #f5f5f5;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
       display: flex;
       justify-content: center;
       align-items: center;
-    }
 
-    /* iOS Safari fallback for older versions */
-    @supports (-webkit-touch-callout: none) {
-      body {
-        min-height: -webkit-fill-available;
-      }
+      overflow-x: hidden;
+
+      /* Keeps content out of the notch area; background still fills screen */
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+
+      -webkit-text-size-adjust: 100%;
     }
 
     .container {
       text-align: center;
       max-width: 720px;
       width: 100%;
-      padding: 32px 20px;
-      box-sizing: border-box;
+      padding: 40px;
     }
 
     h1 {
@@ -60,6 +78,7 @@
 
     .room-link {
       text-decoration: none;
+      display: inline-block;
     }
 
     .room-button {
@@ -75,8 +94,12 @@
       position: relative;
       overflow: hidden;
       text-align: left;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+
+      /* stop iOS button inner weirdness */
+      -webkit-appearance: none;
+      appearance: none;
+      display: block;
+      width: 100%;
     }
 
     .room-button::before {
@@ -142,7 +165,6 @@
       animation: pulse 1.15s ease-in-out infinite;
     }
 
-    /* Optional: make armed state also glow by room (feels sick) */
     .room-button.pub.listening {
       border-color: rgba(245, 193, 108, 0.55);
       box-shadow: 0 14px 40px rgba(245, 193, 108, 0.22);
@@ -175,6 +197,17 @@
       100% {
         transform: translateY(0);
         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.00);
+      }
+    }
+
+    /* Small screens: reduce padding so nothing ever pushes width */
+    @media (max-width: 420px) {
+      .container {
+        padding: 26px 18px;
+      }
+
+      h1 {
+        font-size: 2.35rem;
       }
     }
   </style>
@@ -216,7 +249,6 @@
 
   <script>
     // ---------- OUTSIDE-THE-DOOR PREVIEW SYSTEM ----------
-    // Put these files in: /audio/pub.mp3 /audio/club.mp3 /audio/basement.mp3
     const PREVIEW_FILES = {
       pub: "audio/pub.mp3",
       club: "audio/club.mp3",
@@ -233,11 +265,9 @@
 
     // Update hint copy depending on device
     const audioHint = document.getElementById("audioHint");
-    if (isTouch) {
-      audioHint.textContent = "Tap a room to listen. Tap again to enter.";
-    } else {
-      audioHint.textContent = "Click anywhere, then hover over a room to hear who's playing tonight.";
-    }
+    audioHint.textContent = isTouch
+      ? "Tap a room to listen. Tap again to enter."
+      : "Click anywhere, then hover over a room to hear who's playing tonight.";
 
     // Web Audio setup for muffled effect
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -252,10 +282,10 @@
     // Low-pass filter to simulate "outside the room"
     const lowpass = ctx.createBiquadFilter();
     lowpass.type = "lowpass";
-    lowpass.frequency.value = 10000; // lower = more muffled
+    lowpass.frequency.value = 10000;
     lowpass.Q.value = 0.8;
 
-    // Tiny gain to keep it subtle (like distance)
+    // Tiny gain to keep it subtle
     const gain = ctx.createGain();
     gain.gain.value = 0.55;
 
@@ -275,7 +305,6 @@
     }
 
     async function ensureAudioReady() {
-      // iOS/Safari often needs a user gesture to start audio context
       if (ctx.state === "suspended") {
         try { await ctx.resume(); } catch (e) { }
       }
@@ -283,8 +312,6 @@
 
     async function playPreview(room) {
       if (!PREVIEW_FILES[room]) return;
-
-      // Avoid restarting the same one repeatedly
       if (currentRoom === room && !audioEl.paused) return;
 
       await ensureAudioReady();
@@ -296,7 +323,6 @@
       try {
         await audioEl.play();
       } catch (e) {
-        // Autoplay blocked — user needs a tap first. That's normal.
         return;
       }
 
@@ -304,14 +330,13 @@
       stopTimer = setTimeout(stopPreview, PREVIEW_SECONDS * 1000);
     }
 
-    // Utility: clear "listening" pulses
     function clearListeningStates() {
       document.querySelectorAll(".room-button.listening").forEach(btn => {
         btn.classList.remove("listening");
       });
     }
 
-    // ===== Desktop hover behaviour =====
+    // Desktop hover behaviour
     if (!isTouch) {
       document.querySelectorAll(".room-button").forEach(btn => {
         const room = btn.dataset.room;
@@ -320,7 +345,7 @@
       });
     }
 
-    // ===== Mobile tap-once/tap-twice behaviour =====
+    // Mobile tap-once/tap-twice behaviour
     if (isTouch) {
       let armedRoom = null;
 
@@ -329,7 +354,6 @@
         const btn = link.querySelector(".room-button");
 
         link.addEventListener("click", async (e) => {
-          // First tap on a room => prevent navigation, play preview, pulse button
           if (armedRoom !== room) {
             e.preventDefault();
             armedRoom = room;
@@ -341,11 +365,9 @@
             return;
           }
 
-          // Second tap on same room => allow navigation
           stopPreview();
           clearListeningStates();
           armedRoom = null;
-          // no preventDefault here
         });
       });
 
@@ -360,7 +382,7 @@
       });
     }
 
-    // Safety: stop audio when switching tabs
+    // Stop audio when switching tabs
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) stopPreview();
     });
