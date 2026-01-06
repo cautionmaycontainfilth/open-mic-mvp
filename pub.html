@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Mic — The Pub</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #222222, #0b0b0b);
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .back-link {
+      align-self: flex-start;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+      margin-bottom: 6px;
+    }
+
+    .back-link:hover { opacity: 1; }
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    p {
+      opacity: 0.75;
+      margin: 0 0 8px 0;
+    }
+
+    /* Card */
+    .track-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 20px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: fadeIn 0.6s ease forwards;
+      transform: translateY(0);
+    }
+
+    .track-card:hover {
+      transform: translateY(-2px);
+      transition: transform 0.2s ease;
+    }
+
+    .track-meta {
+      font-size: 0.9rem;
+      opacity: 0.78;
+    }
+
+    .track-meta span { opacity: 0.95; }
+
+    /* Lock text (fades out when unlocked) */
+    .lock-text {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      transition: opacity 0.35s ease;
+    }
+
+    .lock-text strong { color: #ffd98a; }
+
+    .lock-text.hidden {
+      opacity: 0;
+    }
+
+    /* Buttons */
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .pint-button {
+      background: #f5c16c;
+      color: #000;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      min-width: 160px;
+    }
+
+    .pint-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(245, 193, 108, 0.25);
+      background: #ffd98a;
+    }
+
+    .next-button {
+      background: rgba(255,255,255,0.06);
+      color: #f5f5f5;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      min-width: 160px;
+    }
+
+    .next-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 6px 16px rgba(255,255,255,0.08);
+    }
+
+    /* Disabled state (pint only) */
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+      filter: grayscale(0.15);
+    }
+
+    /* Pints counter */
+    .pints {
+      margin-top: 6px;
+      opacity: 0.85;
+      font-size: 0.95rem;
+    }
+
+    .pints strong { color: #ffd98a; }
+
+    /* Clink pop */
+    .clink {
+      position: absolute;
+      right: 12px;
+      top: -8px;
+      opacity: 0;
+      transform: translateY(6px) scale(0.95);
+      pointer-events: none;
+      font-size: 1rem;
+    }
+
+    .pint-button.clinked .clink {
+      animation: clinkPop 0.55s ease forwards;
+    }
+
+    @keyframes clinkPop {
+      0%   { opacity: 0; transform: translateY(10px) scale(0.9); }
+      35%  { opacity: 1; transform: translateY(0) scale(1.05); }
+      100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a href="index.html" class="back-link">← Back to rooms</a>
+
+    <h1>The Pub</h1>
+    <p>Indie, alt, folk. Grab a pint and listen.</p>
+
+    <div class="track-card" id="trackCard">
+      <iframe
+        id="spotifyFrame"
+        src="https://open.spotify.com/embed/track/003vvx7Niy0yvhvHt4a68B?utm_source=generator"
+        width="320"
+        height="80"
+        frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+      </iframe>
+
+      <div class="track-meta" id="trackMeta">
+        Mr. Brightside — <span>The Killers</span>
+      </div>
+
+      <div class="lock-text" id="lockText">
+        Listen for <strong><span id="countdown">20</span>s</strong> to unlock 🍻
+      </div>
+
+      <div class="actions">
+        <button class="pint-button" id="pintBtn" disabled>
+          Buy a pint 🍺
+          <span class="clink">🥂</span>
+        </button>
+
+        <button class="next-button" id="nextBtn">Next act →</button>
+      </div>
+    </div>
+
+    <div class="pints">
+      Pints bought: <strong><span id="pintsCount">0</span></strong> / <strong><span id="pintsMax">3</span></strong>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIG ======
+    const LOCK_SECONDS = 20;
+    const MAX_PINTS = 3;
+
+    // Demo tracks
+    const tracks = [
+      { title: "Mr. Brightside", artist: "The Killers", id: "003vvx7Niy0yvhvHt4a68B" },
+      { title: "Riptide", artist: "Vance Joy", id: "7yq4Qj7cqayVTp3FF9CWbm" },
+      { title: "Wonderwall", artist: "Oasis", id: "2ouURa1AIXp3AvkS52Jry5" },
+      { title: "Ho Hey", artist: "The Lumineers", id: "0W4Kpfp1w2xkY3PrV714B7" }
+    ];
+
+    let currentIndex = 0;
+
+    const spotifyFrame = document.getElementById("spotifyFrame");
+    const trackMeta = document.getElementById("trackMeta");
+    const nextBtn = document.getElementById("nextBtn");
+    const pintBtn = document.getElementById("pintBtn");
+    const pintsCountEl = document.getElementById("pintsCount");
+    const pintsMaxEl = document.getElementById("pintsMax");
+    const trackCard = document.getElementById("trackCard");
+    const lockText = document.getElementById("lockText");
+
+    // ====== PINTS (3 PER SESSION / PAGE LOAD) ======
+    // Persist across "Next act" clicks, reset only when page refreshes.
+    let pints = 0;
+    pintsMaxEl.textContent = MAX_PINTS;
+
+    function renderPints() {
+      pintsCountEl.textContent = pints;
+    }
+
+    function outOfPints() {
+      return pints >= MAX_PINTS;
+    }
+
+    function showOutOfPintsState() {
+      // Stop any running timers and hard-disable the button
+      if (lockTimer) clearInterval(lockTimer);
+      lockTimer = null;
+
+      pintBtn.disabled = true;
+      lockText.classList.remove("hidden");
+      lockText.textContent = "That’s your 3 pints 🍻 Come back next session.";
+    }
+
+    function renderTrackMeta() {
+      trackMeta.innerHTML = `${tracks[currentIndex].title} — <span>${tracks[currentIndex].artist}</span>`;
+    }
+
+    function setTrack(index) {
+      currentIndex = (index + tracks.length) % tracks.length;
+      const trackId = tracks[currentIndex].id;
+
+      spotifyFrame.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator`;
+      renderTrackMeta();
+
+      // Re-trigger fade animation
+      trackCard.style.animation = "none";
+      void trackCard.offsetWidth; // force reflow
+      trackCard.style.animation = "fadeIn 0.6s ease forwards";
+
+      // Re-lock pint button for the new act (unless you're out of pints)
+      if (outOfPints()) {
+        showOutOfPintsState();
+      } else {
+        startLock();
+      }
+    }
+
+    // ====== LOCK LOGIC (PINT ONLY) ======
+    let lockTimer = null;
+    let remaining = LOCK_SECONDS;
+
+    function startLock() {
+      if (lockTimer) clearInterval(lockTimer);
+
+      // if somehow out of pints, don't lock — just show message
+      if (outOfPints()) {
+        showOutOfPintsState();
+        return;
+      }
+
+      lockText.classList.remove("hidden");
+      pintBtn.disabled = true;
+      remaining = LOCK_SECONDS;
+
+      lockText.innerHTML = `Listen for <strong><span id="countdown">${remaining}</span>s</strong> to unlock 🍻`;
+
+      const freshCountdown = document.querySelector("#countdown");
+
+      lockTimer = setInterval(() => {
+        remaining -= 1;
+        freshCountdown.textContent = remaining;
+
+        if (remaining <= 0) {
+          clearInterval(lockTimer);
+          lockTimer = null;
+
+          // Only unlock if you still have pints left
+          if (!outOfPints()) {
+            pintBtn.disabled = false;
+            lockText.classList.add("hidden"); // disappear after countdown
+          } else {
+            showOutOfPintsState();
+          }
+        }
+      }, 1000);
+    }
+
+    // ====== INIT ======
+    renderPints();
+    renderTrackMeta();
+
+    // Start locked unless already out of pints (won't happen at init, but tidy)
+    if (outOfPints()) {
+      showOutOfPintsState();
+    } else {
+      startLock();
+    }
+
+    // Next act cycles tracks
+    nextBtn.addEventListener("click", () => {
+      setTrack(currentIndex + 1);
+    });
+
+    // Pint click increments, clinks, and enforces max
+    pintBtn.addEventListener("click", () => {
+      if (outOfPints()) {
+        showOutOfPintsState();
+        return;
+      }
+
+      pints += 1;
+      renderPints();
+
+      pintBtn.classList.remove("clinked");
+      void pintBtn.offsetWidth;
+      pintBtn.classList.add("clinked");
+
+      // If that was the final pint, disable + show message immediately
+      if (outOfPints()) {
+        showOutOfPintsState();
+      }
+    });
+  </script>
+</body>
+</html>
