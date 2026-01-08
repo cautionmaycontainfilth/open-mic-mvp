@@ -207,7 +207,6 @@
       cursor: not-allowed;
       filter: grayscale(0.15);
 
-      /* Reserve space for the badge so it never collides with the title */
       padding-top: 22px;
       padding-right: 64px;
       min-height: 92px;
@@ -242,6 +241,37 @@
       pointer-events: none;
       z-index: 2;
       white-space: nowrap;
+    }
+
+    /* Sponsor line with logo */
+    .sponsor-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      font-size: 0.82rem;
+      opacity: 0.65;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    /*
+      MAGIC:
+      Your Guinness.png looks like it has a white background.
+      We invert it so white -> black, then "screen" blend makes black disappear.
+      Then we grayscale+brighten so it matches the UI.
+    */
+    .sponsor-logo {
+      height: 16px;
+      width: auto;
+      display: block;
+
+      filter: invert(1) grayscale(1) brightness(1.55);
+      mix-blend-mode: screen;
+      opacity: 0.9;
+
+      /* stops any weird squish */
+      object-fit: contain;
     }
 
     /* Small screens: reduce padding so nothing ever pushes width */
@@ -294,7 +324,11 @@
         <button class="room-button sponsored" type="button" disabled>
           <span class="badge">COMING SOON</span>
           <span class="room-title">The Pub Garden</span>
-          <span class="room-sub">In partnership with Guinness</span>
+
+          <span class="sponsor-line">
+            In partnership with
+            <img class="sponsor-logo" src="images/Guinness.png" alt="Guinness" />
+          </span>
         </button>
       </span>
     </div>
