@@ -255,23 +255,14 @@
       line-height: 1.2;
     }
 
-    /*
-      MAGIC:
-      Your Guinness.png looks like it has a white background.
-      We invert it so white -> black, then "screen" blend makes black disappear.
-      Then we grayscale+brighten so it matches the UI.
-    */
+    /* Transparent PNG: keep it EXACTLY as-is. No filters, no blend. */
     .sponsor-logo {
-      height: 16px;
+      height: 18px;
       width: auto;
-      display: block;
-
-      filter: invert(1) grayscale(1) brightness(1.55);
-      mix-blend-mode: screen;
-      opacity: 0.9;
-
-      /* stops any weird squish */
+      display: inline-block;
+      vertical-align: middle;
       object-fit: contain;
+      opacity: 0.95;
     }
 
     /* Small screens: reduce padding so nothing ever pushes width */
