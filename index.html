@@ -14,13 +14,10 @@
       height: 100%;
       margin: 0;
       padding: 0;
-
-      /* Put the background on BOTH html and body so iOS can't show white behind it */
       background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
       background-color: #0b0b0b;
     }
 
-    /* Prevent tiny overflow from creating side slivers */
     *,
     *::before,
     *::after {
@@ -28,7 +25,6 @@
     }
 
     body {
-      /* iOS-friendly viewport sizing (address bar / safe-area weirdness) */
       min-height: 100vh;
       min-height: 100svh;
       min-height: 100dvh;
@@ -42,7 +38,6 @@
 
       overflow-x: hidden;
 
-      /* Keeps content out of the notch area; background still fills screen */
       padding-left: env(safe-area-inset-left);
       padding-right: env(safe-area-inset-right);
       padding-top: env(safe-area-inset-top);
@@ -74,6 +69,7 @@
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
+      align-items: stretch;
     }
 
     .room-link {
@@ -95,7 +91,6 @@
       overflow: hidden;
       text-align: left;
 
-      /* stop iOS button inner weirdness */
       -webkit-appearance: none;
       appearance: none;
       display: block;
@@ -200,11 +195,23 @@
       }
     }
 
-    /* ===== Sponsored "Coming Soon" card ===== */
+    /* ===== Sponsored "Coming Soon" card (centered row) ===== */
+    .room-link.sponsored-link {
+      flex-basis: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
     .room-button.sponsored {
       opacity: 0.55;
       cursor: not-allowed;
       filter: grayscale(0.15);
+
+      /* Reserve space for the badge so it never collides with the title */
+      padding-top: 22px;
+      padding-right: 64px;
+      min-height: 92px;
+      width: min(420px, 100%);
     }
 
     .room-button.sponsored:hover {
@@ -215,20 +222,26 @@
     }
 
     .room-button.sponsored:hover::before {
-      opacity: 0; /* no hover sheen */
+      opacity: 0;
     }
 
     .badge {
       position: absolute;
       top: 10px;
-      right: 10px;
-      font-size: 0.68rem;
-      letter-spacing: 0.7px;
-      padding: 6px 8px;
+      right: 12px;
+
+      font-size: 0.62rem;
+      letter-spacing: 0.65px;
+      padding: 5px 8px;
       border-radius: 999px;
+
       border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.06);
-      opacity: 0.9;
+      background: rgba(0, 0, 0, 0.18);
+      opacity: 0.95;
+
+      pointer-events: none;
+      z-index: 2;
+      white-space: nowrap;
     }
 
     /* Small screens: reduce padding so nothing ever pushes width */
@@ -239,6 +252,10 @@
 
       h1 {
         font-size: 2.35rem;
+      }
+
+      .room-button.sponsored {
+        width: 100%;
       }
     }
   </style>
@@ -273,7 +290,7 @@
       </a>
 
       <!-- Sponsored Coming Soon (NOT clickable, NO audio behaviour) -->
-      <span class="room-link" aria-disabled="true">
+      <span class="room-link sponsored-link" aria-disabled="true">
         <button class="room-button sponsored" type="button" disabled>
           <span class="badge">COMING SOON</span>
           <span class="room-title">The Pub Garden</span>
@@ -319,13 +336,11 @@
 
     const source = ctx.createMediaElementSource(audioEl);
 
-    // Low-pass filter to simulate "outside the room"
     const lowpass = ctx.createBiquadFilter();
     lowpass.type = "lowpass";
     lowpass.frequency.value = 10000;
     lowpass.Q.value = 0.8;
 
-    // Tiny gain to keep it subtle
     const gain = ctx.createGain();
     gain.gain.value = 0.55;
 
@@ -380,7 +395,7 @@
     if (!isTouch) {
       document.querySelectorAll(".room-button").forEach(btn => {
         const room = btn.dataset.room;
-        if (!room) return; // important: skips the sponsored button
+        if (!room) return; // skip sponsored
 
         btn.addEventListener("mouseenter", () => playPreview(room));
         btn.addEventListener("mouseleave", stopPreview);
