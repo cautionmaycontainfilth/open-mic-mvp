@@ -200,6 +200,37 @@
       }
     }
 
+    /* ===== Sponsored "Coming Soon" card ===== */
+    .room-button.sponsored {
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: grayscale(0.15);
+    }
+
+    .room-button.sponsored:hover {
+      transform: none;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+
+    .room-button.sponsored:hover::before {
+      opacity: 0; /* no hover sheen */
+    }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.68rem;
+      letter-spacing: 0.7px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.06);
+      opacity: 0.9;
+    }
+
     /* Small screens: reduce padding so nothing ever pushes width */
     @media (max-width: 420px) {
       .container {
@@ -240,6 +271,15 @@
           <span class="room-sub">dnb / jungle / experimental</span>
         </button>
       </a>
+
+      <!-- Sponsored Coming Soon (NOT clickable, NO audio behaviour) -->
+      <span class="room-link" aria-disabled="true">
+        <button class="room-button sponsored" type="button" disabled>
+          <span class="badge">COMING SOON</span>
+          <span class="room-title">The Pub Garden</span>
+          <span class="room-sub">In partnership with Guinness</span>
+        </button>
+      </span>
     </div>
 
     <div class="audio-hint" id="audioHint">
@@ -340,6 +380,8 @@
     if (!isTouch) {
       document.querySelectorAll(".room-button").forEach(btn => {
         const room = btn.dataset.room;
+        if (!room) return; // important: skips the sponsored button
+
         btn.addEventListener("mouseenter", () => playPreview(room));
         btn.addEventListener("mouseleave", stopPreview);
       });
@@ -349,7 +391,7 @@
     if (isTouch) {
       let armedRoom = null;
 
-      document.querySelectorAll(".room-link").forEach(link => {
+      document.querySelectorAll(".room-link[data-room]").forEach(link => {
         const room = link.dataset.room;
         const btn = link.querySelector(".room-button");
 
@@ -373,7 +415,7 @@
 
       // Tap outside cancels
       document.addEventListener("click", (e) => {
-        const clickedRoom = e.target.closest(".room-link");
+        const clickedRoom = e.target.closest(".room-link[data-room]");
         if (!clickedRoom && armedRoom !== null) {
           armedRoom = null;
           clearListeningStates();
